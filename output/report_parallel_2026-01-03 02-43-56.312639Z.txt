@@ -1,0 +1,34 @@
+================================================================================
+                    REPORTE DE PROCESAMIENTO DE ARCHIVOS
+================================================================================
+
+Fecha de generación: 2026-01-03 02:43:56.312697Z
+Directorio procesado: parallel processing
+Modo de procesamiento: Paralelo (usando 1 procesos workers)
+
+--------------------------------------------------------------------------------
+RESUMEN EJECUTIVO
+--------------------------------------------------------------------------------
+Total de archivos procesados: 1
+  - Archivos CSV: 1
+  - Archivos JSON: 0
+  - Archivos LOG: 0
+
+Tiempo total de procesamiento: 0 ms
+Archivos exitosos: 1
+Archivos con errores: 0
+Tasa de éxito: 100.0%
+
+
+--------------------------------------------------------------------------------
+MÉTRICAS DE ARCHIVOS CSV
+--------------------------------------------------------------------------------
+
+[bench1.csv]
+  • Registros válidos: 1
+  • Productos únicos: 1
+  • Ventas totales: $10.00
+
+================================================================================
+                           FIN DEL REPORTE
+================================================================================

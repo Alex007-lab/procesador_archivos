@@ -1,0 +1,3 @@
+fecha,producto,categoria,precio_unitario,cantidad,descuento
+2024-01-01,Manzana,Frutas,10.0,5,0.0
+2024-01-02,Pera,Frutas,8.0,3,10.0
