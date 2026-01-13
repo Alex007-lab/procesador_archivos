@@ -2,7 +2,7 @@ defmodule ProcesadorArchivos do
   # Documentación del módulo principal
   @moduledoc """
   Main module for file processing.
-  Supports both sequential (Delivery 1) and parallel (Delivery 2) modes.
+  Supports both sequential (Delivery 1), parallel (Delivery 2) and error handling (Delivery 3) modes.
   """
 
   # ============================================================================
@@ -12,23 +12,25 @@ defmodule ProcesadorArchivos do
   # Función principal pública para procesar archivos en modo secuencial
   # Tiene valor por defecto para folder: "data/valid"
   def process_files(folder \\ "data/valid") do
-    # Crea separador visual de 50 signos "="
+    # Crea separador visual de 50 signos "=" para mejor presentación
     separator = String.duplicate("=", 50)
-    # Imprime encabezado con separadores
+    # Imprime encabezado con separadores para identificar el modo
     IO.puts(separator)
     IO.puts("FILE PROCESSOR - SEQUENTIAL MODE")
     IO.puts(separator)
 
-    # Captura tiempo inicial en milisegundos
+    # Captura tiempo inicial en milisegundos para medir duración
     # :os.system_time/1 obtiene tiempo del sistema con precisión
     start_time = :os.system_time(:millisecond)
 
     # Verifica si la carpeta existe usando File.dir?/1
     if File.dir?(folder) do
+      # Si la carpeta existe, muestra mensaje y procesa
       IO.puts("Processing folder: #{folder}")
       # Llama a función privada para procesar la carpeta
       process_folder(folder, start_time)
     else
+      # Si la carpeta no existe, muestra error y retorna tupla de error
       IO.puts("ERROR: Folder '#{folder}' not found")
       {:error, "Folder not found"}
     end
@@ -40,6 +42,7 @@ defmodule ProcesadorArchivos do
     # File.ls/1 retorna {:ok, lista_archivos} o {:error, razón}
     case File.ls(folder) do
       {:ok, files} ->
+        # Si se pudo leer la carpeta, muestra cantidad de archivos
         IO.puts("Found #{length(files)} files")
 
         # Procesa cada archivo secuencialmente usando Enum.map/2
@@ -51,15 +54,17 @@ defmodule ProcesadorArchivos do
             process_file(file_path)
           end)
 
-        # Calcula tiempo total de procesamiento
+        # Calcula tiempo total de procesamiento restando tiempo final - inicial
         end_time = :os.system_time(:millisecond)
         total_time = end_time - start_time
 
         # Crea reporte con resultados
         create_report(results, total_time, folder, :sequential)
+        # Retorna tupla de éxito con los resultados
         {:ok, results}
 
       {:error, reason} ->
+        # Si hay error leyendo la carpeta, muestra mensaje y retorna error
         IO.puts("ERROR reading folder: #{reason}")
         {:error, reason}
     end
@@ -67,7 +72,7 @@ defmodule ProcesadorArchivos do
 
   # Procesa un archivo individual basado en su extensión
   defp process_file(file_path) do
-    # Extrae solo el nombre del archivo sin la ruta
+    # Extrae solo el nombre del archivo sin la ruta para mostrar
     file_name = Path.basename(file_path)
     IO.puts("Processing: #{file_name}")
 
@@ -75,15 +80,15 @@ defmodule ProcesadorArchivos do
     case Path.extname(file_path) do
       # Si es .csv, llama al parser CSV
       ".csv" ->
-        process_csv(file_path)
+        process_csv_private(file_path)
 
       # Si es .json, llama al parser JSON
       ".json" ->
-        process_json(file_path)
+        process_json_private(file_path)
 
       # Si es .log, llama al parser LOG
       ".log" ->
-        process_log(file_path)
+        process_log_private(file_path)
 
       # Para cualquier otra extensión, retorna error
       _ ->
@@ -98,16 +103,18 @@ defmodule ProcesadorArchivos do
     end
   end
 
-  # Procesa archivo CSV usando CsvParser
-  def process_csv(file_path) do
+  # Función privada para procesar archivo CSV usando CsvParser
+  defp process_csv_private(file_path) do
     # Llama a CsvParser.process/1 que retorna {:ok, metrics} o {:error, reason}
     case CsvParser.process(file_path) do
       {:ok, metrics} ->
+        # Si el procesamiento fue exitoso, muestra métricas y combina resultados
         IO.puts("  OK: CSV processed - #{metrics.valid_records} valid records")
-        # Combina métricas con información adicional
+        # Combina métricas con información adicional de tipo y estado
         Map.merge(metrics, %{type: :csv, status: :success})
 
       {:error, reason} ->
+        # Si hubo error, muestra mensaje y retorna estructura de error
         IO.puts("  ERROR: #{reason}")
         # Retorna estructura de error estandarizada
         %{
@@ -119,19 +126,27 @@ defmodule ProcesadorArchivos do
     end
   end
 
-  # Procesa archivo JSON usando JsonParser (similar a CSV)
-  defp process_json(file_path) do
+  # Función pública para procesar CSV (para compatibilidad con otras funciones)
+  def process_csv(file_path) do
+    process_csv_private(file_path)
+  end
+
+  # Función privada para procesar archivo JSON usando JsonParser (similar a CSV)
+  defp process_json_private(file_path) do
     case JsonParser.process(file_path) do
       {:ok, metrics} ->
+        # Si el procesamiento fue exitoso, muestra métricas
         IO.puts(
           "  OK: JSON processed - #{metrics.total_users} users, #{metrics.active_users} active"
         )
 
+        # Combina métricas con información adicional
         Map.merge(metrics, %{type: :json, status: :success})
 
       {:error, reason} ->
+        # Si hubo error, muestra mensaje
         IO.puts("  ERROR: #{reason}")
-
+        # Retorna estructura de error
         %{
           type: :json,
           file_name: Path.basename(file_path),
@@ -141,17 +156,22 @@ defmodule ProcesadorArchivos do
     end
   end
 
-  # Procesa archivo LOG usando LogParser (similar a los anteriores)
-  defp process_log(file_path) do
+  # Función privada para procesar archivo LOG usando LogParser (similar a los anteriores)
+  defp process_log_private(file_path) do
     case LogParser.process(file_path) do
       {:ok, metrics} ->
-        IO.puts("  OK: LOG processed - #{metrics.total_lines} lines, #{metrics.error} errors")
+        # Si el procesamiento fue exitoso, muestra métricas
+        IO.puts(
+          "  OK: LOG processed - #{metrics.total_lines} lines, #{metrics.error} errors"
+        )
 
+        # Combina métricas con información adicional
         Map.merge(metrics, %{type: :log, status: :success})
 
       {:error, reason} ->
+        # Si hubo error, muestra mensaje
         IO.puts("  ERROR: #{reason}")
-
+        # Retorna estructura de error
         %{
           type: :log,
           file_name: Path.basename(file_path),
@@ -177,6 +197,7 @@ defmodule ProcesadorArchivos do
     IO.puts("FILE PROCESSOR - PARALLEL MODE")
     IO.puts(separator)
 
+    # Capturamos tiempo inicial para medir duración
     start_time = :os.system_time(:millisecond)
 
     # Mostramos información sobre lo que vamos a procesar
@@ -368,16 +389,23 @@ defmodule ProcesadorArchivos do
   # @param mode [Atom] :sequential o :parallel (default: :sequential)
   # @private
   defp create_report(results, total_time, folder, mode) do
+    # Genera timestamp para nombre único del archivo
     timestamp =
       DateTime.utc_now() |> DateTime.to_string() |> String.replace(":", "-")
 
+    # Determina string del modo para el nombre del archivo
     mode_str = if mode == :parallel, do: "parallel", else: "sequential"
+    # Crea nombre del archivo de reporte
     report_file = "output/report_#{mode_str}_#{timestamp}.txt"
 
+    # Asegura que exista el directorio output
     File.mkdir_p!("output")
+    # Genera contenido del reporte
     report_content = generate_report_content(results, total_time, folder, mode)
+    # Escribe el contenido en el archivo
     File.write!(report_file, report_content)
 
+    # Muestra mensaje confirmando que se guardó el reporte
     separator = String.duplicate("=", 50)
     IO.puts("\n#{separator}")
     IO.puts("Report saved to: #{report_file}")
@@ -563,5 +591,419 @@ defmodule ProcesadorArchivos do
     "\n[#{result.file_name}]" <>
       "\n  - Líneas totales: #{result.total_lines}" <>
       "\n  - Distribución: DEBUG(#{result.debug}), INFO(#{result.info}), WARN(#{result.warn}), ERROR(#{result.error}), FATAL(#{result.fatal})"
+  end
+
+  # ============================================================================
+  # FUNCIONES PARA ENTREGA 3 - MANEJO DE ERRORES
+  # ============================================================================
+
+  @doc """
+  Procesa un archivo con manejo detallado de errores.
+  Retorna un mapa con informacion sobre lineas procesadas y errores encontrados.
+  """
+  def procesar_con_manejo_errores(file_path, config \\ %{}) do
+    # Muestra mensaje indicando que se está procesando con manejo de errores
+    IO.puts("Procesando con manejo de errores: #{Path.basename(file_path)}")
+
+    # Llama al módulo especializado en manejo de errores
+    result =
+      ProcesadorArchivos.ProcesarConManejoErrores.procesar(file_path, config)
+
+    # Procesa el resultado según el tipo de retorno
+    case result do
+      {:error, mensaje} ->
+        # Si es una tupla de error, muestra mensaje y retorna mapa de error
+        IO.puts("Error: #{mensaje}")
+        %{estado: :error, error: mensaje}
+
+      mapa when is_map(mapa) ->
+        # Si es un mapa (resultado exitoso), muestra detalles y retorna el mapa
+        mostrar_resultado_errores(mapa)
+        mapa
+    end
+  end
+
+  # Función privada para mostrar resultados detallados de procesamiento con errores
+  defp mostrar_resultado_errores(resultado) do
+    # Muestra encabezado de resultados
+    IO.puts("Resultado del procesamiento:")
+    IO.puts("  Estado: #{resultado.estado}")
+
+    # Si el resultado tiene información de líneas procesadas, la muestra
+    if Map.has_key?(resultado, :lineas_procesadas) do
+      IO.puts("  Lineas procesadas: #{resultado.lineas_procesadas}")
+    end
+
+    # Si el resultado tiene información de líneas con error, la muestra
+    if Map.has_key?(resultado, :lineas_con_error) do
+      IO.puts("  Lineas con error: #{resultado.lineas_con_error}")
+    end
+
+    # Si hay errores detallados, los muestra uno por uno
+    if Map.has_key?(resultado, :errores) and length(resultado.errores) > 0 do
+      IO.puts("  Detalles de errores:")
+
+      # Itera sobre cada error y muestra línea y mensaje
+      Enum.each(resultado.errores, fn {linea, error} ->
+        IO.puts("    Linea #{linea}: #{error}")
+      end)
+    end
+  end
+
+  @doc """
+  Procesa archivos en modo secuencial con configuracion de manejo de errores.
+  """
+  def process_files_with_config(folder, config \\ %{}) do
+    # Configuración por defecto si no se proporciona
+    default_config = %{
+      timeout: 5000,
+      retries: 3,
+      verbose: true
+    }
+
+    # Combina configuración por defecto con la proporcionada por el usuario
+    config = Map.merge(default_config, config)
+
+    # Muestra configuración que se va a usar
+    IO.puts("Procesando secuencialmente con configuracion:")
+    IO.puts("  Timeout: #{config.timeout}ms")
+    IO.puts("  Reintentos: #{config.retries}")
+
+    # Captura tiempo inicial para medir duración
+    start_time = :os.system_time(:millisecond)
+
+    # Verifica que la carpeta exista
+    if File.dir?(folder) do
+      # Intenta leer los archivos de la carpeta
+      case File.ls(folder) do
+        {:ok, files} ->
+          # Si pudo leer, muestra cantidad de archivos
+          IO.puts("Encontrados #{length(files)} archivos")
+
+          # Procesa cada archivo con reintentos
+          results =
+            files
+            |> Enum.map(&Path.join(folder, &1))
+            |> Enum.map(fn file_path ->
+              process_with_retry(file_path, config)
+            end)
+
+          # Calcula tiempo total
+          end_time = :os.system_time(:millisecond)
+          total_time = end_time - start_time
+
+          # Genera reporte con información de errores
+          report_file =
+            generar_reporte_con_errores(
+              results,
+              total_time,
+              folder,
+              :sequential,
+              config
+            )
+
+          # Muestra resumen
+          IO.puts("Tiempo total: #{total_time}ms")
+          IO.puts("Reporte guardado en: #{report_file}")
+
+          # Retorna tupla de éxito con resultados
+          {:ok, results}
+
+        {:error, reason} ->
+          # Si hay error leyendo la carpeta, muestra mensaje
+          IO.puts("Error leyendo carpeta: #{reason}")
+          {:error, reason}
+      end
+    else
+      # Si la carpeta no existe, muestra error
+      IO.puts("Error: Carpeta '#{folder}' no encontrada")
+      {:error, "Folder not found"}
+    end
+  end
+
+  @doc """
+  Procesa archivos en paralelo con configuracion de manejo de errores.
+  """
+  def process_parallel_with_config(folder, config \\ %{}) do
+    # Configuración por defecto
+    default_config = %{
+      timeout: 5000,
+      retries: 3,
+      max_workers: System.schedulers_online() * 2,
+      verbose: true
+    }
+
+    # Combina configuraciones
+    config = Map.merge(default_config, config)
+
+    # Muestra configuración
+    IO.puts("Procesando en paralelo con configuracion:")
+    IO.puts("  Workers: #{config.max_workers}")
+    IO.puts("  Timeout: #{config.timeout}ms")
+    IO.puts("  Reintentos: #{config.retries}")
+
+    # Captura tiempo inicial
+    start_time = :os.system_time(:millisecond)
+
+    # Verifica que la carpeta exista
+    if File.dir?(folder) do
+      # Lee archivos de la carpeta
+      case File.ls(folder) do
+        {:ok, files} ->
+          # Convierte nombres a rutas completas
+          full_paths = Enum.map(files, &Path.join(folder, &1))
+
+          # Procesa en paralelo usando Task.async_stream
+          results =
+            full_paths
+            |> Task.async_stream(
+              fn file_path ->
+                # Cada archivo se procesa con reintentos
+                process_with_retry(file_path, config)
+              end,
+              # Configuración del stream paralelo
+              max_concurrency: config.max_workers,
+              timeout: config.timeout * (config.retries + 1),
+              on_timeout: :kill_task
+            )
+            |> Enum.map(fn
+              # Si la tarea fue exitosa
+              {:ok, result} ->
+                result
+
+              # Si hubo timeout global
+              {:exit, :timeout} ->
+                %{status: :error, error: "Timeout global", file_name: "unknown"}
+
+              # Si hubo otro tipo de error
+              {:exit, reason} ->
+                %{status: :error, error: inspect(reason), file_name: "unknown"}
+            end)
+            |> Enum.to_list()
+
+          # Calcula tiempo total
+          end_time = :os.system_time(:millisecond)
+          total_time = end_time - start_time
+
+          # Genera reporte
+          report_file =
+            generar_reporte_con_errores(
+              results,
+              total_time,
+              folder,
+              :parallel,
+              config
+            )
+
+          # Muestra resumen
+          IO.puts("Tiempo total: #{total_time}ms")
+          IO.puts("Archivos procesados: #{length(results)}")
+          IO.puts("Reporte guardado en: #{report_file}")
+
+          # Retorna lista de resultados
+          results
+
+        {:error, reason} ->
+          # Error leyendo carpeta
+          IO.puts("Error leyendo carpeta: #{reason}")
+          []
+      end
+    else
+      # Carpeta no existe
+      IO.puts("Error: Carpeta '#{folder}' no encontrada")
+      []
+    end
+  end
+
+  @doc """
+  Benchmark con configuracion personalizada.
+  """
+  def benchmark_with_config(folder, config \\ %{}) do
+    # Muestra encabezado del benchmark
+    IO.puts("Benchmark con manejo de errores")
+    IO.puts("================================")
+
+    # Verifica que la carpeta exista
+    unless File.dir?(folder) do
+      IO.puts("Error: Carpeta '#{folder}' no existe")
+      # CORRECCIÓN: En Elixir no existe 'return', se usa return implícito
+      # Simplemente retornamos el mapa de error
+      %{error: "Folder not found"}
+    else
+      # Intenta leer los archivos
+      case File.ls(folder) do
+        {:ok, files} ->
+          # Convierte nombres a rutas completas
+          full_paths = Enum.map(files, &Path.join(folder, &1))
+
+          IO.puts("Comparando con #{length(files)} archivos")
+
+          # ============ MODO SECUENCIAL ============
+          IO.puts("\n1. Modo secuencial...")
+
+          # Mide tiempo del modo secuencial
+          {seq_time, _seq_results} =
+            :timer.tc(fn ->
+              Enum.map(full_paths, fn path ->
+                process_file(path)
+              end)
+            end)
+
+          # Convierte a milisegundos
+          seq_time_ms = div(seq_time, 1000)
+
+          # ============ MODO PARALELO ============
+          IO.puts("\n2. Modo paralelo...")
+
+          # Mide tiempo del modo paralelo
+          {par_time, _par_results} =
+            :timer.tc(fn ->
+              process_parallel_with_config(folder, config)
+            end)
+
+          # Convierte a milisegundos
+          par_time_ms = div(par_time, 1000)
+
+          # ============ CÁLCULO DE MEJORA ============
+          # Calcula factor de mejora (cuántas veces más rápido es el paralelo)
+          improvement =
+            if par_time_ms > 0 do
+              Float.round(seq_time_ms / par_time_ms, 2)
+            else
+              0.0
+            end
+
+          # ============ MOSTRAR RESULTADOS ============
+          IO.puts("\nRESULTADOS:")
+          IO.puts("  Secuencial: #{seq_time_ms} ms")
+          IO.puts("  Paralelo:   #{par_time_ms} ms")
+          IO.puts("  Mejora: #{improvement}x mas rapido")
+
+          # Retorna mapa con todos los resultados
+          %{
+            sequential_ms: seq_time_ms,
+            parallel_ms: par_time_ms,
+            improvement: improvement,
+            files_count: length(files)
+          }
+
+        {:error, reason} ->
+          # Error leyendo carpeta
+          IO.puts("Error leyendo carpeta: #{reason}")
+          %{error: reason}
+      end
+    end
+  end
+
+  # Función privada que procesa un archivo con reintentos
+  # Función simple para procesar archivo con reintentos
+  # Esta función intenta procesar un archivo varias veces si falla
+  defp process_with_retry(file_path, config, intento \\ 1) do
+    # Valores de configuración
+    max_intentos = config.retries
+    # Agregué _ al inicio porque no se usa
+    _timeout_val = config.timeout
+
+    # Mostramos qué estamos haciendo
+    nombre_archivo = Path.basename(file_path)
+    IO.puts("Procesando #{nombre_archivo} - Intento #{intento}")
+
+    # Usamos un enfoque simple: intentar y si falla, reintentar
+    try do
+      # Procesamos el archivo
+      resultado = process_file(file_path)
+      IO.puts("¡Correcto! #{nombre_archivo} procesado")
+      resultado
+    rescue
+      # Si hay CUALQUIER error
+      _error ->
+        # Verificamos si podemos reintentar
+        if intento < max_intentos do
+          IO.puts("Hubo error. Reintentando...")
+          # Esperamos un segundo
+          :timer.sleep(1000)
+          # Reintentamos
+          process_with_retry(file_path, config, intento + 1)
+        else
+          IO.puts(
+            "ERROR: No se pudo procesar después de #{max_intentos} intentos"
+          )
+
+          # Retornamos un error simple
+          %{
+            status: :error,
+            file_name: nombre_archivo,
+            error: "Error después de varios intentos",
+            attempts: intento
+          }
+        end
+    end
+  end
+
+  # Función privada para generar reporte con información de errores
+  defp generar_reporte_con_errores(results, total_time, folder, mode, config) do
+    # Asegura que exista el directorio output
+    File.mkdir_p!("output")
+
+    # Genera timestamp único para el nombre del archivo
+    timestamp =
+      DateTime.utc_now()
+      |> DateTime.to_string()
+      |> String.replace(" ", "_")
+      |> String.replace(":", "-")
+
+    # Determina string del modo
+    mode_str = if mode == :parallel, do: "parallel", else: "sequential"
+    # Crea nombre del archivo
+    filename = "output/report_#{mode_str}_errors_#{timestamp}.txt"
+
+    # Cuenta archivos exitosos y con errores
+    successes = Enum.count(results, &(&1[:status] == :success))
+    errors = Enum.count(results, &(&1[:status] == :error))
+
+    # Genera contenido del reporte
+    # Si hay errores, lista cada uno
+    # Si no hay errores, muestra mensaje
+    content = """
+    ================================================
+    REPORTE DE PROCESAMIENTO CON MANEJO DE ERRORES
+    ================================================
+    Fecha: #{timestamp}
+    Directorio: #{folder}
+    Modo: #{mode_str}
+    Timeout configurado: #{config.timeout}ms
+    Reintentos configurados: #{config.retries}
+
+    RESUMEN:
+    - Total archivos: #{length(results)}
+    - Exitosos: #{successes}
+    - Con errores: #{errors}
+    - Tiempo total: #{total_time}ms
+
+    ARCHIVOS CON ERRORES:
+    #{if errors > 0 do
+      Enum.map(results, fn r -> if r[:status] == :error do
+          "  - #{r.file_name}: #{r.error}"
+        end end) |> Enum.filter(& &1) |> Enum.join("\n")
+    else
+      "  (No hay archivos con errores)"
+    end}
+
+    DETALLE POR ARCHIVO:
+    #{Enum.map(results, fn r -> if r[:status] == :success do
+        "  ✓ #{r.file_name}: Procesado correctamente"
+      else
+        "  ✗ #{r.file_name}: ERROR - #{r.error}"
+      end end) |> Enum.join("\n")}
+
+    ================================================
+    FIN DEL REPORTE
+    ================================================
+    """
+
+    # Escribe el contenido en el archivo
+    File.write!(filename, content)
+    # Retorna el nombre del archivo generado
+    filename
   end
 end

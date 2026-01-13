@@ -1,0 +1,94 @@
+
+## 7. Script para probar todo:
+
+```bash
+#!/bin/bash
+# test_entrega3.sh
+
+echo "=== Probando Entrega 3 ==="
+echo ""
+
+echo "1. Compilando proyecto..."
+mix compile
+
+echo ""
+echo "2. Ejecutando pruebas..."
+mix test test/error_handling_test.exs
+
+echo ""
+echo "3. Creando ejecutable..."
+mix escript.build
+
+echo ""
+echo "4. Probando ejecutable con ayuda..."
+./procesador_archivos --help
+
+echo ""
+echo "5. Probando archivo corrupto..."
+./procesador_archivos data/error/ventas_corrupto.csv
+
+echo ""
+echo "6. Probando directorio valido..."
+./procesador_archivos data/valid
+
+echo ""
+echo "7. Probando benchmark..."
+./procesador_archivos --mode benchmark data/valid
+
+echo ""
+echo "=== Pruebas completadas ==="
+
+
+
+
+
+
+
+
+# Compilar ejecutable
+mix escript.build
+
+# Procesar directorio
+./procesador_archivos data/valid
+
+# Procesar con opciones
+./procesador_archivos --timeout 10000 --retries 5 data/error
+
+# Procesar archivo individual
+./procesador_archivos data/error/ventas_corrupto.csv
+
+# Modo benchmark
+./procesador_archivos --mode benchmark data/valid
+
+# Ver ayuda
+./procesador_archivos --help
+
+
+
+
+# Ejecutar todas las pruebas
+mix test
+
+# Ejecutar solo pruebas de manejo de errores
+mix test test/error_handling_test.exs
+
+# Ejecutar con cobertura
+mix test --cover
+
+
+
+
+
+
+
+
+# Compilar proyecto
+mix compile
+
+# Crear ejecutable
+mix escript.build
+
+# Usar ejecutable
+./procesador_archivos --help
+./procesador_archivos data/error/ventas_corrupto.csv
+./procesador_archivos --timeout 10000 --retries 3 data/valid

@@ -1,0 +1,29 @@
+================================================
+REPORTE DE PROCESAMIENTO CON MANEJO DE ERRORES
+================================================
+Fecha: 2026-01-07_05-49-13.290621Z
+Directorio: data/valid
+Modo: sequential
+Timeout configurado: 5000ms
+Reintentos configurados: 3
+
+RESUMEN:
+- Total archivos: 6
+- Exitosos: 6
+- Con errores: 0
+- Tiempo total: 14ms
+
+ARCHIVOS CON ERRORES:
+  (No hay archivos con errores)
+
+DETALLE POR ARCHIVO:
+  ✓ usuarios.json: Procesado correctamente
+  ✓ ventas_enero.csv: Procesado correctamente
+  ✓ sistema.log: Procesado correctamente
+  ✓ aplicacion.log: Procesado correctamente
+  ✓ sesiones.json: Procesado correctamente
+  ✓ ventas_febrero.csv: Procesado correctamente
+
+================================================
+FIN DEL REPORTE
+================================================

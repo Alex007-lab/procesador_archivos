@@ -1,0 +1,4 @@
+fecha,producto,categoria,precio,cantidad,descuento
+2024-01-01,A,B,10,1,0
+2024-01-02,C,D,ERROR,1,0
+2024-01-03,E,F,20,,0

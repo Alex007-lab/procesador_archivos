@@ -2,7 +2,7 @@
                     REPORTE DE PROCESAMIENTO DE ARCHIVOS
 ================================================================================
 
-Fecha de generación: 2026-01-03 02:43:56.312697Z
+Fecha de generación: 2026-01-07 05:18:39.536542Z
 Directorio procesado: parallel processing
 Modo de procesamiento: Paralelo (usando 1 procesos workers)
 
@@ -24,10 +24,10 @@ Tasa de éxito: 100.0%
 MÉTRICAS DE ARCHIVOS CSV
 --------------------------------------------------------------------------------
 
-[bench1.csv]
+[test_parallel_1.csv]
   • Registros válidos: 1
   • Productos únicos: 1
-  • Ventas totales: $10.00
+  • Ventas totales: $180.00
 
 ================================================================================
                            FIN DEL REPORTE
