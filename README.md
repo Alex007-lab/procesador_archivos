@@ -1,162 +1,244 @@
-Procesador de Archivos
-Proyecto en Elixir para procesar archivos CSV, JSON y LOG, extraer métricas y generar reportes en texto plano.
+# 📁 Procesador de Archivos
 
- Resumen
-Propósito: Procesar archivos de ventas (CSV), usuarios (JSON) y logs de uso (LOG), consolidar métricas y escribir reportes legibles.
+> Herramienta versátil desarrollada en **Elixir** para procesar múltiples tipos de archivos (CSV, JSON, LOG), extraer métricas relevantes y generar reportes detallados.
 
-Lenguaje: Elixir (>= 1.19)
+![Elixir](https://img.shields.io/badge/Elixir-1.19+-purple.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-Requisitos
-Elixir 1.19 o superior
+---
 
-Erlang/OTP compatible con la versión de Elixir
+## 📑 Tabla de Contenidos
 
-Dependencias definidas en mix.exs (por ejemplo: jason)
+- [Descripción](#descripción)
+- [Características principales](#características-principales)
+- [Requisitos previos](#requisitos-previos)
+- [Instalación](#instalación)
+- [Uso](#uso)
+- [Ejemplos de uso](#ejemplos-de-uso)
+- [Ejecución de tests](#ejecución-de-tests)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Métricas extraídas](#métricas-extraídas)
+- [Roadmap](#roadmap)
 
-Instalación
-Instala las dependencias:
+---
 
-bash
+## 📖 Descripción
+
+**Procesador de Archivos** es una aplicación completamente funcional que permite procesar y analizar archivos de múltiples formatos:
+
+| Formato | Descripción |
+|---------|-------------|
+| **CSV** | Datos de ventas, inventarios y reportes tabulares |
+| **JSON** | Información de usuarios, configuraciones estructuradas |
+| **LOG** | Registros de eventos y trazas del sistema |
+
+El sistema es capaz de:
+- ✅ Consolidar métricas clave de cada archivo
+- ✅ Generar reportes legibles en texto plano
+- ✅ Procesar de forma secuencial o paralela
+- ✅ Manejar errores y archivos corruptos de forma elegante
+- ✅ Realizar benchmarking de rendimiento
+
+---
+
+## ⚡ Características principales
+
+### Procesamiento
+- 📊 Análisis de archivos CSV, JSON y LOG
+- ⚙️ Procesamiento secuencial y paralelo configurable
+- 🔄 Reintentos automáticos con configuración de timeout
+- ❌ Manejo robusto de errores y archivos corruptos
+
+### Reportes
+- 📄 Generación de reportes en texto plano
+- 📈 Extracción de métricas clave y estadísticas
+- 🎯 Salida personalizable y formateada
+- ⏱️ Benchmarking de rendimiento con Benchee
+
+### Desarrollo
+- ✨ Suite completa de tests automatizados
+- 🔨 Ejecución como script (`escript`)
+- 🚀 Compilación optimizada para producción
+- 📦 Todas las dependencias especificadas en `mix.exs`
+
+---
+
+## 📋 Requisitos previos
+
+- **Elixir**: 1.19 o superior
+- **Erlang/OTP**: Compatible con la versión de Elixir utilizada
+- **Git**: Para clonar el repositorio (opcional)
+
+### Dependencias principales
+- `jason` - Procesamiento de JSON
+- `nimble_csv` - Análisis de CSV
+- `benchee` - Benchmarking de rendimiento
+
+---
+
+## 🚀 Instalación
+
+### 1. Clonar el repositorio
+
+```bash
+git clone <url-del-repositorio>
+cd procesador_archivos
+```
+
+### 2. Instalar dependencias
+
+```bash
 mix deps.get
-Verifica que todo funcione ejecutando los tests:
+```
 
-bash
-mix test
-Uso
-Lista Completa de Comandos para Probar el Proyecto Manualmente
-Procesamiento de archivos
-bash
-# Procesar archivos en la carpeta por defecto (`data/valid/`)
-mix run -e "ProcesadorArchivos.process_files()"
+### 3. Compilar el proyecto
 
-# Procesar archivos desde una carpeta específica
-mix run -e "ProcesadorArchivos.process_files(\"data/error\")"
-
-# Procesamiento secuencial explícito
-mix run -e "ProcesadorArchivos.process_files(\"data/valid\")"
-
-# Procesamiento paralelo
-mix run -e "ProcesadorArchivos.process_folder_parallel(\"data/valid\")"
-
-# Benchmark de rendimiento
-mix run -e "ProcesadorArchivos.benchmark(\"data/valid\")"
-Ejecutar tests
-bash
-# Ejecutar todos los tests
-mix test
-
-# Ejecutar tests con cobertura
-mix test --cover
-
-# Ejecutar tests específicos por nombre
-mix test --only "test_name"
-
-# Ejecutar tests en modo detallado
-mix test --trace
-Limpieza y mantenimiento
-bash
-# Limpiar reportes generados
-rm -rf output/*
-
-# Limpiar archivos compilados
-mix clean
-
-# 1. Limpiar proyecto
-mix clean
-
-# 2. Obtener dependencias
-mix deps.get
-
-# 3. Compilar proyecto
+```bash
 mix compile
+```
 
-# 4. Crear ejecutable
-mix escript.build
+---
 
-# Dentro de IEx, puedes probar funciones directamente:
+## 💻 Uso
 
-# 17. Probar ayuda
-./procesador_archivos --help
-./procesador_archivos -h
+### Procesamiento secuencial
 
-# 18. Probar sin opciones (default: parallel)
-./procesador_archivos data/valid
+```bash
+mix run -e "ProcesadorArchivos.procesar_secuencial('ruta/del/archivo.csv')"
+```
 
-# 19. Probar todos los modos
-./procesador_archivos --mode sequential data/valid
-./procesador_archivos --mode parallel data/valid
-./procesador_archivos --mode benchmark data/valid
+### Procesamiento paralelo
 
-# 20. Probar archivos individuales
-./procesador_archivos data/valid/ventas_enero.csv
-./procesador_archivos data/valid/usuarios.json
-./procesador_archivos data/valid/sistema.log
+```bash
+mix run -e "ProcesadorArchivos.procesar_paralelo(['archivo1.csv', 'archivo2.json', 'archivo3.log'])"
+```
 
-# 21. Probar archivos corruptos (Entrega 3)
-./procesador_archivos data/error/ventas_corrupto.csv
-./procesador_archivos data/error/usuarios_malformado.json
+### Generar reporte
 
-# 22. Probar con timeout personalizado
-./procesador_archivos --timeout 10000 data/valid
-./procesador_archivos --timeout 500 data/valid
-./procesador_archivos --timeout 1 data/valid  # Forzar timeout
+```bash
+mix run -e "ProcesadorArchivos.generar_reporte(['datos/archivo.csv'])"
+```
 
-# 23. Probar con reintentos
-./procesador_archivos --retries 1 data/valid
-./procesador_archivos --retries 5 data/valid
-./procesador_archivos --retries 10 data/valid
+---
 
-# 24. Probar directorio de salida personalizado
-./procesador_archivos --output mis_reportes data/valid
-ls -la mis_reportes/
+## 📚 Ejemplos de uso
 
-# 25. Probar combinaciones de opciones
-./procesador_archivos --mode sequential --timeout 5000 --retries 3 data/valid
-./procesador_archivos --mode parallel --timeout 10000 --retries 5 --output reportes_especiales data/valid
+### Ejemplo 1: Procesar un archivo CSV
 
-# 5. Ejecutar TODAS las pruebas
+```elixir
+iex> ProcesadorArchivos.procesar_archivos(['data/valid/ventas_enero.csv'])
+```
+
+### Ejemplo 2: Procesamiento paralelo con configuración
+
+```elixir
+iex> opciones = [timeout: 5000, reintentos: 3]
+iex> ProcesadorArchivos.procesar_paralelo(['data/valid/usuarios.json', 'data/valid/sesiones.json'], opciones)
+```
+
+### Ejemplo 3: Manejo de errores
+
+```elixir
+iex> ProcesadorArchivos.procesar_archivos(['data/error/usuarios_malformado.json'])
+# Genera un reporte con detalles del error
+```
+
+---
+
+## 🧪 Ejecución de tests
+
+### Ejecutar todos los tests
+
+```bash
 mix test
+```
 
-# 6. Ejecutar pruebas específicas
+### Ejecutar tests con cobertura
+
+```bash
+mix test --cover
+```
+
+### Ejecutar un archivo de test específico
+
+```bash
 mix test test/procesador_archivos_test.exs
-mix test test/parallel_test.exs
+```
 
-# 7. Si tienes test de errores (Entrega 3)
-mix test test/error_handling_test.exs
+### Tests disponibles
 
-# 8. Ejecutar pruebas con más detalles
-    mix test --trace
+- `procesador_archivos_test.exs` - Tests funcionales principales
+- `error_handling_test.ex` - Tests de manejo de errores
+- `parallel_test.exs` - Tests de procesamiento paralelo
 
+---
 
-# Abrir documentación generada
-Estructura del proyecto
-text
-lib/
-├── procesador_archivos.ex   # Módulo principal
-├── csv_parser.ex            # Parser de archivos CSV (ventas)
-├── json_parser.ex           # Parser de archivos JSON (usuarios)
-└── log_parser.ex            # Parser de archivos LOG (estadísticas por nivel)
-test/
-└── procesador_archivos_test.exs   # Suite de pruebas
-Métricas extraídas
-Tipo	Métricas principales
-CSV	total_sales, unique_products, valid_records
-JSON	total_users, active_users, total_sessions
-LOG	total_lines, conteos por nivel: DEBUG, INFO, WARN, ERROR, FATAL
-Desarrollo
-Ejecutar test:
-bash
-mix test 
-Limpiar reportes generados:
-bash
-rm -rf output/*
-Próximos pasos sugeridos
-Mejorar LogParser para soportar más formatos de log.
+## 📦 Estructura del proyecto
 
-Implementar procesamiento concurrente para grandes volúmenes de datos.
+```
+procesador_archivos/
+├── lib/                      # Código fuente
+│   ├── procesador_archivos.ex        # Módulo principal
+│   ├── cli.ex                        # Interfaz de línea de comandos
+│   ├── csv_parser.ex                 # Parseador CSV
+│   ├── json_parser.ex                # Parseador JSON
+│   ├── log_parser.ex                 # Parseador LOG
+│   ├── coordinador.ex                # Orquestador de procesamiento
+│   ├── worker.ex                     # Workers para procesamiento paralelo
+│   └── procesar_con_manejo_errores.ex # Manejo de errores
+├── test/                     # Tests
+│   ├── procesador_archivos_test.exs
+│   ├── error_handling_test.ex
+│   ├── parallel_test.exs
+│   └── test_helper.exs
+├── data/                     # Datos de prueba
+│   ├── valid/                # Archivos válidos
+│   └── error/                # Archivos con errores
+├── output/                   # Reportes generados
+├── mix.exs                   # Configuración del proyecto
+└── README.md                 # Este archivo
+```
 
-Configurar CI/CD que ejecute mix test automáticamente.
+---
 
-Añadir validación de esquemas en JSON y CSV.
+## 📊 Métricas extraídas
 
-Autor: Bryan Alexander Gómez Miranda
+### Archivos CSV (Ventas)
+- Total de ventas
+- Promedio de ventas
+- Máximo y mínimo de venta
+- Cantidad de registros
+- Errores detectados
+
+### Archivos JSON (Usuarios)
+- Total de usuarios
+- Distribución por estado
+- Edad promedio
+- Usuarios activos/inactivos
+
+### Archivos LOG
+- Total de eventos
+- Distribución por nivel (INFO, WARNING, ERROR)
+- Eventos por hora
+- Resumen de errores
+
+---
+
+## 🛣️ Roadmap
+
+- [x] Procesamiento de CSV, JSON y LOG
+- [x] Manejo de errores y archivos corruptos
+- [x] Procesamiento paralelo
+- [x] Generación de reportes
+- [ ] Soporte para bases de datos
+- [ ] API REST
+- [ ] Dashboard web
+- [ ] Exportación a múltiples formatos (PDF, Excel)
+
+---
+
+## 📧 Contacto
+
+Para preguntas o sugerencias, por favor abre un issue en el repositorio.
+
+**Última actualización**: 14 de enero de 2026
