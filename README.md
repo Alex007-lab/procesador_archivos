@@ -1,4 +1,4 @@
-# 📁 Procesador de Archivos
+# Procesador de Archivos
 
 > Herramienta versátil desarrollada en **Elixir** para procesar múltiples tipos de archivos (CSV, JSON, LOG), extraer métricas relevantes y generar reportes detallados.
 
@@ -7,7 +7,7 @@
 
 ---
 
-## 📑 Tabla de Contenidos
+## Tabla de Contenidos
 
 - [Descripción](#descripción)
 - [Características principales](#características-principales)
@@ -22,7 +22,7 @@
 
 ---
 
-## 📖 Descripción
+## Descripción
 
 **Procesador de Archivos** es una aplicación completamente funcional que permite procesar y analizar archivos de múltiples formatos:
 
@@ -33,37 +33,37 @@
 | **LOG** | Registros de eventos y trazas del sistema |
 
 El sistema es capaz de:
-- ✅ Consolidar métricas clave de cada archivo
-- ✅ Generar reportes legibles en texto plano
-- ✅ Procesar de forma secuencial o paralela
-- ✅ Manejar errores y archivos corruptos de forma elegante
-- ✅ Realizar benchmarking de rendimiento
+- Consolidar métricas clave de cada archivo
+- Generar reportes legibles en texto plano
+- Procesar de forma secuencial o paralela
+- Manejar errores y archivos corruptos de forma elegante
+- Realizar benchmarking de rendimiento
 
 ---
 
-## ⚡ Características principales
+## Características principales
 
 ### Procesamiento
-- 📊 Análisis de archivos CSV, JSON y LOG
-- ⚙️ Procesamiento secuencial y paralelo configurable
-- 🔄 Reintentos automáticos con configuración de timeout
-- ❌ Manejo robusto de errores y archivos corruptos
+- Análisis de archivos CSV, JSON y LOG
+- Procesamiento secuencial y paralelo configurable
+- Reintentos automáticos con configuración de timeout
+- Manejo robusto de errores y archivos corruptos
 
 ### Reportes
-- 📄 Generación de reportes en texto plano
-- 📈 Extracción de métricas clave y estadísticas
-- 🎯 Salida personalizable y formateada
-- ⏱️ Benchmarking de rendimiento con Benchee
+- Generación de reportes en texto plano
+- Extracción de métricas clave y estadísticas
+- Salida personalizable y formateada
+- Benchmarking de rendimiento con Benchee
 
 ### Desarrollo
-- ✨ Suite completa de tests automatizados
-- 🔨 Ejecución como script (`escript`)
-- 🚀 Compilación optimizada para producción
-- 📦 Todas las dependencias especificadas en `mix.exs`
+- Suite completa de tests automatizados
+- Ejecución como script (`escript`)
+- Compilación optimizada para producción
+- Todas las dependencias especificadas en `mix.exs`
 
 ---
 
-## 📋 Requisitos previos
+## Requisitos previos
 
 - **Elixir**: 1.19 o superior
 - **Erlang/OTP**: Compatible con la versión de Elixir utilizada
@@ -76,7 +76,7 @@ El sistema es capaz de:
 
 ---
 
-## 🚀 Instalación
+## Instalación
 
 ### 1. Clonar el repositorio
 
@@ -99,7 +99,7 @@ mix compile
 
 ---
 
-## 💻 Uso
+## Uso
 
 ### Procesamiento secuencial
 
@@ -121,7 +121,7 @@ mix run -e "ProcesadorArchivos.generar_reporte(['datos/archivo.csv'])"
 
 ---
 
-## 📚 Ejemplos de uso
+## Ejemplos de uso
 
 ### Ejemplo 1: Procesar un archivo CSV
 
@@ -145,7 +145,7 @@ iex> ProcesadorArchivos.procesar_archivos(['data/error/usuarios_malformado.json'
 
 ---
 
-## 🧪 Ejecución de tests
+## Ejecución de tests
 
 ### Ejecutar todos los tests
 
@@ -173,7 +173,7 @@ mix test test/procesador_archivos_test.exs
 
 ---
 
-## 📦 Estructura del proyecto
+## Estructura del proyecto
 
 ```
 procesador_archivos/
@@ -201,7 +201,7 @@ procesador_archivos/
 
 ---
 
-## 📊 Métricas extraídas
+## Métricas extraídas
 
 ### Archivos CSV (Ventas)
 - Total de ventas
@@ -224,7 +224,7 @@ procesador_archivos/
 
 ---
 
-## 🛣️ Roadmap
+## Roadmap
 
 - [x] Procesamiento de CSV, JSON y LOG
 - [x] Manejo de errores y archivos corruptos
@@ -237,8 +237,14 @@ procesador_archivos/
 
 ---
 
-## 📧 Contacto
+## Licencia
 
-Para preguntas o sugerencias, por favor abre un issue en el repositorio.
+Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+
+---
+
+## Contacto
+
+bryan10104585@gmail.com
 
 **Última actualización**: 14 de enero de 2026
